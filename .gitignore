@@ -1,0 +1,6 @@
+# Tests
+coverage
+coverage.html
+
+# Editor directories and files
+.vscode/*
