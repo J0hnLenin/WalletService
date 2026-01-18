@@ -10,8 +10,11 @@ func (pg *PGStorage) shardAndBucketByWalletID(id uuid.UUID) (int, bucketNum) {
 	h := fnv.New32a()
 	h.Write(id[:]) 
 	hash := h.Sum32()
-	bucketIndex := bucketNum(hash % uint32(pg.numberOfBuckets))
-	shardIndex := int(bucketIndex) % len(pg.shards)
 
-	return shardIndex, bucketIndex
+	shardIndex := (hash) % uint32(len(pg.shards))
+
+	bucketPerShard := uint32(pg.numberOfBuckets) / uint32(len(pg.shards))
+	bucketIndex := bucketNum(shardIndex * bucketPerShard + (hash % bucketPerShard))
+
+	return int(shardIndex), bucketIndex
 }

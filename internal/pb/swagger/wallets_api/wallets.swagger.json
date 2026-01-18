@@ -83,10 +83,11 @@
     "OperationOperationType": {
       "type": "string",
       "enum": [
+        "OPERATION_TYPE_UNSPECIFIED",
         "DEPOSIT",
         "WITHDRAW"
       ],
-      "default": "DEPOSIT"
+      "default": "OPERATION_TYPE_UNSPECIFIED"
     },
     "protobufAny": {
       "type": "object",

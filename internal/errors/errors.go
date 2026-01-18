@@ -23,3 +23,19 @@ func (e *ErrWalletNotExists) Error() string {
     return fmt.Sprintf("wallet %s not exists", 
         e.WalletID.String())
 }
+
+func (e *ErrInsufficientBalance) Is(tgt error) bool {
+    _, ok := tgt.(*ErrInsufficientBalance)
+    if !ok{
+        return false
+    }
+    return true
+}
+
+func (e *ErrWalletNotExists) Is(tgt error) bool {
+    _, ok := tgt.(*ErrWalletNotExists)
+    if !ok{
+        return false
+    }
+    return true
+}

@@ -7,14 +7,13 @@
 package wallets_api
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	models "github.com/J0hnLenin/WalletService/internal/pb/models"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (

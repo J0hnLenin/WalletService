@@ -24,19 +24,22 @@ const (
 type Operation_OperationType int32
 
 const (
-	Operation_DEPOSIT  Operation_OperationType = 0
-	Operation_WITHDRAW Operation_OperationType = 1
+	Operation_OPERATION_TYPE_UNSPECIFIED Operation_OperationType = 0
+	Operation_DEPOSIT                    Operation_OperationType = 1
+	Operation_WITHDRAW                   Operation_OperationType = 2
 )
 
 // Enum value maps for Operation_OperationType.
 var (
 	Operation_OperationType_name = map[int32]string{
-		0: "DEPOSIT",
-		1: "WITHDRAW",
+		0: "OPERATION_TYPE_UNSPECIFIED",
+		1: "DEPOSIT",
+		2: "WITHDRAW",
 	}
 	Operation_OperationType_value = map[string]int32{
-		"DEPOSIT":  0,
-		"WITHDRAW": 1,
+		"OPERATION_TYPE_UNSPECIFIED": 0,
+		"DEPOSIT":                    1,
+		"WITHDRAW":                   2,
 	}
 )
 
@@ -121,8 +124,8 @@ func (x *Wallet) GetBalance() int64 {
 
 type Operation struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	WalletId      string                  `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
-	OperationType Operation_OperationType `protobuf:"varint,2,opt,name=operation_type,json=operationType,proto3,enum=walletservice.models.v1.Operation_OperationType" json:"operation_type,omitempty"`
+	WalletId      string                  `protobuf:"bytes,1,opt,name=walletId,proto3" json:"walletId,omitempty"`
+	OperationType Operation_OperationType `protobuf:"varint,2,opt,name=operationType,proto3,enum=walletservice.models.v1.Operation_OperationType" json:"operationType,omitempty"`
 	Amount        int64                   `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -169,7 +172,7 @@ func (x *Operation) GetOperationType() Operation_OperationType {
 	if x != nil {
 		return x.OperationType
 	}
-	return Operation_DEPOSIT
+	return Operation_OPERATION_TYPE_UNSPECIFIED
 }
 
 func (x *Operation) GetAmount() int64 {
@@ -186,14 +189,15 @@ const file_models_wallet_model_proto_rawDesc = "" +
 	"\x19models/wallet_model.proto\x12\x17walletservice.models.v1\"2\n" +
 	"\x06Wallet\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\abalance\x18\x02 \x01(\x03R\abalance\"\xc5\x01\n" +
-	"\tOperation\x12\x1b\n" +
-	"\twallet_id\x18\x01 \x01(\tR\bwalletId\x12W\n" +
-	"\x0eoperation_type\x18\x02 \x01(\x0e20.walletservice.models.v1.Operation.OperationTypeR\roperationType\x12\x16\n" +
-	"\x06amount\x18\x03 \x01(\x03R\x06amount\"*\n" +
-	"\rOperationType\x12\v\n" +
-	"\aDEPOSIT\x10\x00\x12\f\n" +
-	"\bWITHDRAW\x10\x01B7Z5github.com/J0hnLenin/WalletService/internal/pb/modelsb\x06proto3"
+	"\abalance\x18\x02 \x01(\x03R\abalance\"\xe3\x01\n" +
+	"\tOperation\x12\x1a\n" +
+	"\bwalletId\x18\x01 \x01(\tR\bwalletId\x12V\n" +
+	"\roperationType\x18\x02 \x01(\x0e20.walletservice.models.v1.Operation.OperationTypeR\roperationType\x12\x16\n" +
+	"\x06amount\x18\x03 \x01(\x03R\x06amount\"J\n" +
+	"\rOperationType\x12\x1e\n" +
+	"\x1aOPERATION_TYPE_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aDEPOSIT\x10\x01\x12\f\n" +
+	"\bWITHDRAW\x10\x02B7Z5github.com/J0hnLenin/WalletService/internal/pb/modelsb\x06proto3"
 
 var (
 	file_models_wallet_model_proto_rawDescOnce sync.Once
@@ -215,7 +219,7 @@ var file_models_wallet_model_proto_goTypes = []any{
 	(*Operation)(nil),            // 2: walletservice.models.v1.Operation
 }
 var file_models_wallet_model_proto_depIdxs = []int32{
-	0, // 0: walletservice.models.v1.Operation.operation_type:type_name -> walletservice.models.v1.Operation.OperationType
+	0, // 0: walletservice.models.v1.Operation.operationType:type_name -> walletservice.models.v1.Operation.OperationType
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

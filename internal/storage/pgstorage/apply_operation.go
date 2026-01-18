@@ -2,7 +2,6 @@ package pgstorage
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
@@ -15,54 +14,60 @@ func (pg *PGStorage) ApplyOperation(ctx context.Context, op *models.WalletOperat
     shardIndex, bucketIndex := pg.shardAndBucketByWalletID(op.WalletID)
     tableName := tableWithBucket(bucketIndex)
 
-    upsert := fmt.Sprintf(
-        "WITH upsert_balance AS ( "+
-            "INSERT INTO %s (%s, %s, %s) "+
-            "VALUES ($1, GREATEST($2, 0), CURRENT_TIMESTAMP) "+
-            "ON CONFLICT (%s) DO UPDATE "+
-            "SET %s = %s.%s + EXCLUDED.%s, "+
-            "%s = CURRENT_TIMESTAMP "+
-            "WHERE %s.%s + EXCLUDED.%s >= 0 "+
-            "RETURNING %s "+
-        ") "+
-        "SELECT %s FROM upsert_balance",
+    // Сначала пытаемся создать запись с нулевым балансом, если ее нет
+    insertQuery := fmt.Sprintf(`
+        INSERT INTO %s (%s, %s, %s)
+        VALUES ($1, 0, CURRENT_TIMESTAMP)
+        ON CONFLICT (%s) DO NOTHING
+    `,
         tableName,
         idColumnName, balanceColumnName, createdAtColumnName,
         idColumnName,
-        balanceColumnName, tableName, balanceColumnName, balanceColumnName,
+    )
+
+    // Затем обновляем баланс с проверкой
+    updateQuery := fmt.Sprintf(`
+        UPDATE %s 
+        SET %s = %s + $2,
+            %s = CURRENT_TIMESTAMP
+        WHERE %s = $1
+        AND %s + $2 >= 0
+        RETURNING %s
+    `,
+        tableName,
+        balanceColumnName, balanceColumnName,
         updatedAtColumnName,
-        tableName, balanceColumnName, balanceColumnName,
+        idColumnName,
         balanceColumnName,
         balanceColumnName,
     )
 
     args := []interface{}{op.WalletID, op.AmountChange}
 
-    transactionOptions :=  pgx.TxOptions{
-        IsoLevel:   pgx.Serializable,
-        AccessMode: pgx.ReadWrite,
-    }
-
-    transaction, err := pg.shards[shardIndex].db.BeginTx(ctx, transactionOptions)
+    transaction, err := pg.shards[shardIndex].db.Begin(ctx)
     if err != nil {
         return 0, fmt.Errorf("begin transaction error: %w", err)
     }
     
     defer func() {
         if err != nil {
-            // Если во время выполнения запроса возникла ошибка, 
-            // то откатываем транзакцию 
             transaction.Rollback(ctx)
         }
     }()
 
-    var balance int64
-    err = transaction.QueryRow(ctx, upsert, args...).Scan(&balance)
+    _, err = transaction.Exec(ctx, insertQuery, op.WalletID)
     if err != nil {
-        if errors.Is(err, sql.ErrNoRows) {
+        return 0, fmt.Errorf("insert if new error: %w", err)
+    }
+
+    var balance int64
+    err = transaction.QueryRow(ctx, updateQuery, args...).Scan(&balance)
+    if err != nil {
+        if errors.Is(err, pgx.ErrNoRows) {
+            // Недостаточно средств
             return 0, &custom_errors.ErrInsufficientBalance{WalletID: op.WalletID}
         }
-        return 0, fmt.Errorf("execute operation error: %w", err)
+        return 0, fmt.Errorf("update balance error: %w", err)
     }
 
     // Фиксируем транзакцию

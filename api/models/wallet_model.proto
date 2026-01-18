@@ -9,13 +9,14 @@ message Wallet {
 }
 
 message Operation {
-  string wallet_id = 1;
-  OperationType operation_type = 2;
+  string walletId = 1;
+  OperationType operationType = 2;
   int64 amount = 3;
   
   enum OperationType {
-    DEPOSIT = 0;
-    WITHDRAW = 1;
+    OPERATION_TYPE_UNSPECIFIED = 0;
+    DEPOSIT = 1;
+    WITHDRAW = 2;
   }
 }
 
