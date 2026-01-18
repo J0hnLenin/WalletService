@@ -14,6 +14,7 @@ func (api *WalletServiceAPI) GetBalance(ctx context.Context, req *wallets_api.Ge
 	if err != nil {
 		return nil, err
 	}
+	
 	return &proto_models.Wallet{
 		Id: wallet.ID.String(),
 		Balance: wallet.Balance,

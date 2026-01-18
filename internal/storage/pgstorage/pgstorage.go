@@ -17,7 +17,7 @@ type pgShard struct {
 	db *pgxpool.Pool
 }
 
-func NewPGStorge(cfg config.Config) (*PGStorage, error) {
+func NewPGStorge(cfg *config.Config) (*PGStorage, error) {
 
 	storage := &PGStorage{
 		numberOfBuckets: cfg.NumberOfBuckets,

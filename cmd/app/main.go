@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/J0hnLenin/WalletService/config"
+	"github.com/J0hnLenin/WalletService/internal/bootstrap"
 )
 
 func main() {
@@ -18,5 +19,11 @@ func main() {
 	}
 	logger.Info("Config loaded", "shards", len(config.StorageShards))
 	
+	walletStorage := bootstrap.InitPGStorage(config)
+	walletService := bootstrap.InitWalletService(walletStorage)
+	walletsApi := bootstrap.InitWalletServiceAPI(walletService)
+
+	bootstrap.AppRun(*walletsApi)
+
 	logger.Info("Application started")
 }
