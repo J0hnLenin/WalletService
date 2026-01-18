@@ -7,10 +7,10 @@ import (
 )
 type Config struct {
 	NumberOfBuckets uint16 `env:"BUCKETS"`
-	StorageShards   []*StorageConfig
+	StorageShards   []*ShardConfig
 }
 
-type StorageConfig struct {
+type ShardConfig struct {
 	Host     string `env:"STORAGE_HOST_N"`
 	Port     uint16 `env:"STORAGE_PORT_N"`
 	Username string `env:"POSTGRES_USER"`
@@ -33,7 +33,7 @@ func LoadConfig() (*Config, error) {
 
 	config := &Config{
 		NumberOfBuckets: uint16(buckets),
-		StorageShards: make([]*StorageConfig, shards),
+		StorageShards: make([]*ShardConfig, shards),
 	}
 
 	for shardIndex := range(shards) {
@@ -46,7 +46,7 @@ func LoadConfig() (*Config, error) {
 	return config, nil
 }
 
-func newStorageConfig(shardIndex int) (*StorageConfig, error) {
+func newStorageConfig(shardIndex int) (*ShardConfig, error) {
 	var envVariableName string
 
 	envVariableName = fmt.Sprintf("STORAGE_HOST_%d", shardIndex)
@@ -81,7 +81,7 @@ func newStorageConfig(shardIndex int) (*StorageConfig, error) {
 		return nil, err
 	}
 
-	return &StorageConfig{
+	return &ShardConfig{
 		Host: host,
 		Port: uint16(port),
 		Username: username,
