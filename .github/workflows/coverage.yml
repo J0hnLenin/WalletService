@@ -14,8 +14,7 @@ jobs:
           
       - name: Run tests with coverage
         run: |
-          go test -coverprofile=coverage -covermode=atomic \
-            ./internal/services/wallet_service
+          go test -coverprofile=coverage -covermode=atomic ./internal/services/wallet_service
         
       - name: Send coverage to Coveralls
         uses: shogo82148/actions-goveralls@v1
