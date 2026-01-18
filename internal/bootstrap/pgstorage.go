@@ -7,7 +7,7 @@ import (
 	"github.com/J0hnLenin/WalletService/internal/storage/pgstorage"
 )
 
-func InitPGStorage(cfg *config.Config) *pgstorage.PGStorage {
+func InitPGStorage(cfg *config.StorageConfig) *pgstorage.PGStorage {
 
 	storage, err := pgstorage.NewPGStorge(cfg)
 	if err != nil {

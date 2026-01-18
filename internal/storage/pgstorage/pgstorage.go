@@ -17,7 +17,7 @@ type pgShard struct {
 	db *pgxpool.Pool
 }
 
-func NewPGStorge(cfg *config.Config) (*PGStorage, error) {
+func NewPGStorge(cfg *config.StorageConfig) (*PGStorage, error) {
 
 	storage := &PGStorage{
 		numberOfBuckets: cfg.NumberOfBuckets,
@@ -27,8 +27,7 @@ func NewPGStorge(cfg *config.Config) (*PGStorage, error) {
 	for shardIndex, shardConfig := range cfg.StorageShards {
 		var err error
 
-		connectionString := fmt.Sprintf("postgres_%d://%s:%s@%s:%d/%s",
-			shardIndex,
+		connectionString := fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
 			shardConfig.Username, 
 			shardConfig.Password, 
 			shardConfig.Host, 

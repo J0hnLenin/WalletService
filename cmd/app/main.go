@@ -17,13 +17,13 @@ func main() {
 			"err", err)
 		panic(err)
 	}
-	logger.Info("Config loaded", "shards", len(config.StorageShards))
+	logger.Info("Config loaded")
 	
-	walletStorage := bootstrap.InitPGStorage(config)
+	walletStorage := bootstrap.InitPGStorage(config.StorageConfig)
 	walletService := bootstrap.InitWalletService(walletStorage)
 	walletsApi := bootstrap.InitWalletServiceAPI(walletService)
 
-	bootstrap.AppRun(*walletsApi)
+	bootstrap.AppRun(config.APIConfig, *walletsApi)
 
 	logger.Info("Application started")
 }
