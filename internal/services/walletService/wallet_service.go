@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate mockery --name walletStorage
+//go:generate mockery --name WalletStorage
 type WalletStorage interface {
 	GetWalletByID(ctx context.Context, id uuid.UUID) (*models.Wallet, error)
 	ApplyOperation(ctx context.Context, op *models.WalletOperation) (error)
