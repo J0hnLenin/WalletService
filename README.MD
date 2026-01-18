@@ -5,7 +5,8 @@
 ![Go Version](https://img.shields.io/badge/Go-1.25.6-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue)
-
+![Coverage Status](https://coveralls.io/repos/github/J0hnLenin/WalletService/badge.svg?branch=main)
+![Tests Status](https://github.com/J0hnLenin/WalletService/actions/workflows/coverage.yml/badge.svg)
 
 ## Cтек
 
