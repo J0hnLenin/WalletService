@@ -20,12 +20,13 @@ type StorageConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
-	buckets, err := strconv.Atoi(os.Getenv("BUCKETS"))
+
+	buckets, err := getEnvInt("BUCKETS")
 	if err != nil {
 		return nil, err
 	}
 
-	shards, err := strconv.Atoi(os.Getenv("SHARDS"))
+	shards, err := getEnvInt("SHARDS")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func LoadConfig() (*Config, error) {
 	for shardIndex := range(shards) {
 		config.StorageShards[shardIndex], err = newStorageConfig(shardIndex)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("can't create storage shard %d: %w", shardIndex, err)
 		}
 	}
 
@@ -46,28 +47,38 @@ func LoadConfig() (*Config, error) {
 }
 
 func newStorageConfig(shardIndex int) (*StorageConfig, error) {
-	
-	hostEnv := fmt.Sprintf("STORAGE_HOST_%d", shardIndex)
-	host := os.Getenv(hostEnv)
-	
-	portEnv := fmt.Sprintf("STORAGE_PORT_%d", shardIndex)
-	port, err := strconv.Atoi(os.Getenv(portEnv))
+	var envVariableName string
+
+	envVariableName = fmt.Sprintf("STORAGE_HOST_%d", shardIndex)
+	host, err := getEnv(envVariableName)
 	if err != nil {
 		return nil, err
 	}
 
-	username := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbName := os.Getenv("POSTGRES_DB")
-	sslMode := os.Getenv("STORAGE_SSL_MODE")
+	envVariableName = fmt.Sprintf("STORAGE_PORT_%d", shardIndex)
+	port, err := getEnvInt(envVariableName)
+	if err != nil {
+		return nil, err
+	}
 
-	if host == "" ||
-		username == "" ||
-		password == "" ||
-		dbName == "" ||
-		sslMode == "" {
+	username, err := getEnv("POSTGRES_USER")
+	if err != nil {
+		return nil, err
+	}
 
-		return nil, fmt.Errorf("Storage config for shard %d not found", shardIndex)
+	password, err := getEnv("POSTGRES_PASSWORD")
+	if err != nil {
+		return nil, err
+	}
+
+	dbName, err := getEnv("POSTGRES_DB")
+	if err != nil {
+		return nil, err
+	}
+
+	sslMode, err := getEnv("STORAGE_SSL_MODE")
+	if err != nil {
+		return nil, err
 	}
 
 	return &StorageConfig{
@@ -78,5 +89,21 @@ func newStorageConfig(shardIndex int) (*StorageConfig, error) {
 		DBName: dbName,
 		SSLMode: sslMode,
 	}, nil
-	
+}
+
+func getEnv(variableName string) (string, error) {
+	value := os.Getenv(variableName)
+	if value == "" {
+		return value, fmt.Errorf("got empty value for '%s' from env", variableName)
+	}
+	return value, nil
+}
+
+func getEnvInt(variableName string) (int, error) {
+	value := os.Getenv(variableName)
+	result, err := strconv.Atoi(value)
+	if err != nil {
+		return result, fmt.Errorf("can't convert '%s' env value '%s' to int: %w", variableName, value, err)
+	}
+	return result, nil
 }
