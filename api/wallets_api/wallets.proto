@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package walletservice.service.v1;
+option go_package = "github.com/J0hnLenin/WalletService/internal/pb/wallets_api";
+
+import "models/wallet_model.proto";
+import "google/api/annotations.proto";
+
+service WalletsService {
+    rpc ApplyOperation (walletservice.models.v1.Operation) returns (walletservice.models.v1.Wallet) {
+        option (google.api.http) = {
+            post: "/api/v1/wallet"
+            body: "*"
+        };
+    }
+
+    rpc GetBalance (GetBalanceRequest) returns (walletservice.models.v1.Wallet) {
+        option (google.api.http) = {
+            get: "/api/v1/wallets/{wallet_id}"
+        };
+    }
+ }
+
+
+message GetBalanceRequest {
+    string wallet_id = 1;
+}
+
+message ErrorResponse {
+    string code = 1;
+    string message = 2;
+}

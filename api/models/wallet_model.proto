@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package walletservice.models.v1;
+option go_package = "github.com/J0hnLenin/WalletService/internal/pb/models";
+
+message Wallet {
+  string id = 1;
+  int64 balance = 2;
+}
+
+message Operation {
+  string wallet_id = 1;
+  OperationType operation_type = 2;
+  int64 amount = 3;
+  
+  enum OperationType {
+    DEPOSIT = 0;
+    WITHDRAW = 1;
+  }
+}
+
+
+
+
+
+
+
