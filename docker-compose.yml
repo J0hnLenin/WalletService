@@ -16,6 +16,8 @@ services:
       - ./config.env
     ports:
       - "8000:5432"
+    volumes:
+      - ./internal/storage/pgstorage/migrations/shard_0:/docker-entrypoint-initdb.d
     deploy:
       resources:
         limits:
@@ -43,6 +45,8 @@ services:
       - ./config.env
     ports:
       - "8001:5432"
+    volumes:
+      - ./internal/storage/pgstorage/migrations/shard_1:/docker-entrypoint-initdb.d
     deploy:
       resources:
         limits:
