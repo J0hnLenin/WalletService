@@ -17,21 +17,31 @@ type WalletStorage struct {
 }
 
 // ApplyOperation provides a mock function with given fields: ctx, op
-func (_m *WalletStorage) ApplyOperation(ctx context.Context, op *models.WalletOperation) error {
+func (_m *WalletStorage) ApplyOperation(ctx context.Context, op *models.WalletOperation) (int64, error) {
 	ret := _m.Called(ctx, op)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ApplyOperation")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.WalletOperation) error); ok {
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.WalletOperation) (int64, error)); ok {
+		return rf(ctx, op)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *models.WalletOperation) int64); ok {
 		r0 = rf(ctx, op)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(int64)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, *models.WalletOperation) error); ok {
+		r1 = rf(ctx, op)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetWalletByID provides a mock function with given fields: ctx, id
