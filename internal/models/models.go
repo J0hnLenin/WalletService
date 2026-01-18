@@ -6,7 +6,7 @@ import (
 
 type Wallet struct {
 	ID uuid.UUID 
-	Amount int64
+	Balance int64
 }
 
 type WalletOperation struct {

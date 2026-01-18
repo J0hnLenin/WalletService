@@ -2,18 +2,20 @@ package pgstorage
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
+	custom_errors "github.com/J0hnLenin/WalletService/internal/errors"
 	"github.com/J0hnLenin/WalletService/internal/models"
-	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
 )
 
-func (pg *PGStorage) ApplyOperation(ctx context.Context, op *models.WalletOperation) error {
-
-    shardIndex, bucketIndex := pg.shardAndBucketByWalletID(op.WalletID)    
+func (pg *PGStorage) ApplyOperation(ctx context.Context, op *models.WalletOperation) (newBalance int64, err error) {
+    shardIndex, bucketIndex := pg.shardAndBucketByWalletID(op.WalletID)
     tableName := tableWithBucket(bucketIndex)
-    
-    upsertCTE := fmt.Sprintf(
+
+    upsert := fmt.Sprintf(
         "WITH upsert_balance AS ( "+
             "INSERT INTO %s (%s, %s, %s) "+
             "VALUES ($1, GREATEST($2, 0), CURRENT_TIMESTAMP) "+
@@ -22,47 +24,51 @@ func (pg *PGStorage) ApplyOperation(ctx context.Context, op *models.WalletOperat
             "%s = CURRENT_TIMESTAMP "+
             "WHERE %s.%s + EXCLUDED.%s >= 0 "+
             "RETURNING %s "+
-        ") ",
-        tableName, 
-        idColumnName, amountColumnName, createdAtColumnName,
+        ") "+
+        "SELECT %s FROM upsert_balance",
+        tableName,
+        idColumnName, balanceColumnName, createdAtColumnName,
         idColumnName,
-        amountColumnName, tableName, amountColumnName, amountColumnName,
+        balanceColumnName, tableName, balanceColumnName, balanceColumnName,
         updatedAtColumnName,
-        tableName, amountColumnName, amountColumnName,
-        amountColumnName,
+        tableName, balanceColumnName, balanceColumnName,
+        balanceColumnName,
+        balanceColumnName,
     )
-    
-    query := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
-        Select(amountColumnName).
-        Prefix(upsertCTE).
-        From("upsert_balance").
-        Suffix(fmt.Sprintf(
-            "UNION ALL "+
-            "SELECT NULL "+
-            "WHERE NOT EXISTS (SELECT 1 FROM %s WHERE %s = $1) "+
-            "AND $2 < 0",
-            tableName, idColumnName,
-        )).
-        Prefix("BEGIN;").
-        Suffix("; COMMIT;")
-    
-    queryText, args, err := query.ToSql()
+
+    args := []interface{}{op.WalletID, op.AmountChange}
+
+    transactionOptions :=  pgx.TxOptions{
+        IsoLevel:   pgx.Serializable,
+        AccessMode: pgx.ReadWrite,
+    }
+
+    transaction, err := pg.shards[shardIndex].db.BeginTx(ctx, transactionOptions)
     if err != nil {
-        return fmt.Errorf("generate query error: %w", err)
+        return 0, fmt.Errorf("begin transaction error: %w", err)
     }
     
-    args = []interface{}{op.WalletID, op.AmountChange}
-    
-    var balance *int64
-    err = pg.shards[shardIndex].db.QueryRow(ctx, queryText, args...).Scan(&balance)
+    defer func() {
+        if err != nil {
+            // Если во время выполнения запроса возникла ошибка, 
+            // то откатываем транзакцию 
+            transaction.Rollback(ctx)
+        }
+    }()
+
+    var balance int64
+    err = transaction.QueryRow(ctx, upsert, args...).Scan(&balance)
     if err != nil {
-        return fmt.Errorf("execute operation error: %w", err)
+        if errors.Is(err, sql.ErrNoRows) {
+            return 0, &custom_errors.ErrInsufficientBalance{WalletID: op.WalletID}
+        }
+        return 0, fmt.Errorf("execute operation error: %w", err)
     }
-    
-    // Если balance == nil, это означает попытку списания с несуществующего счёта
-    if balance == nil && op.AmountChange < 0 {
-        return fmt.Errorf("can't withdraw from non-existent wallet")
+
+    // Фиксируем транзакцию
+    if err = transaction.Commit(ctx); err != nil {
+        return 0, fmt.Errorf("commit transaction error: %w", err)
     }
-    
-    return nil
+
+    return balance, nil
 }

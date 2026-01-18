@@ -7,7 +7,7 @@ const (
 	tableName    = "wallets"
 
 	idColumnName        = "id"
-	amountColumnName    = "game_proto"
+	balanceColumnName   = "balance"
 	createdAtColumnName = "created_at"
 	updatedAtColumnName = "updated_at"
 )

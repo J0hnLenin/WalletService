@@ -10,7 +10,7 @@ import (
 //go:generate mockery --name WalletStorage
 type WalletStorage interface {
 	GetWalletByID(ctx context.Context, id uuid.UUID) (*models.Wallet, error)
-	ApplyOperation(ctx context.Context, op *models.WalletOperation) (error)
+	ApplyOperation(ctx context.Context, op *models.WalletOperation) (newBalance int64, err error)
 }
 
 type WalletService struct {

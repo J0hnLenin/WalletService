@@ -24,7 +24,7 @@ BEGIN
         EXECUTE format('
             CREATE TABLE IF NOT EXISTS %I.wallets (
                 id UUID PRIMARY KEY,
-                amount INT NOT NULL CHECK (amount > 0),
+                balance INT NOT NULL CHECK (balance >= 0),
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             )', schema_name);
