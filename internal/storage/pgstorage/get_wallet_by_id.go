@@ -13,7 +13,7 @@ func (pg *PGStorage) GetWalletByID(ctx context.Context, id uuid.UUID) (*models.W
 	
 	shardIndex, bucketIndex := pg.shardAndBucketByWalletID(id)
 	query := squirrel.Select(amountColumnName).
-		From(tableWithBacket(bucketIndex)).
+		From(tableWithBucket(bucketIndex)).
 		Where(squirrel.Eq{idColumnName: id}).
 		PlaceholderFormat(squirrel.Dollar)
 
@@ -31,6 +31,6 @@ func (pg *PGStorage) GetWalletByID(ctx context.Context, id uuid.UUID) (*models.W
 	if  err != nil {
 		return nil, fmt.Errorf("query row error: %w", err)
 	}
-	
+
 	return wallet, nil
 }
