@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 type Config struct {
 	NumberOfBuckets uint16 `env:"BUCKETS"`
@@ -22,11 +20,6 @@ type StorageConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
-	err := godotenv.Load("config.env")
-	if err != nil {
-		return nil, err
-	}
-
 	buckets, err := strconv.Atoi(os.Getenv("BUCKETS"))
 	if err != nil {
 		return nil, err
@@ -39,7 +32,7 @@ func LoadConfig() (*Config, error) {
 
 	config := &Config{
 		NumberOfBuckets: uint16(buckets),
-		StorageShards: make([]*StorageConfig, uint16(buckets)),
+		StorageShards: make([]*StorageConfig, shards),
 	}
 
 	for shardIndex := range(shards) {
