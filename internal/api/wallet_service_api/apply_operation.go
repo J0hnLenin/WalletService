@@ -17,29 +17,29 @@ import (
 func (api *WalletServiceAPI) ApplyOperation(ctx context.Context, op *proto_models.Operation) (*proto_models.Wallet, error) {
 	uuid, err := uuid.Parse(op.WalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "can't parse walletid '%s' request parameter %w", op.WalletId, err)
+		return nil, status.Errorf(codes.InvalidArgument, "can't parse walletid '%s' request parameter %v", op.WalletId, err)
 	}
 
 	var amount int64
-	
+
 	if op.Amount < 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "amount request parameter must be >= 0")
 	}
 
 	switch op.OperationType {
-		case proto_models.Operation_WITHDRAW:
-			amount = -op.Amount
-		case proto_models.Operation_DEPOSIT:
-			amount = op.Amount
-		default:
-			return nil, status.Errorf(codes.InvalidArgument, "operationType parameter must be '%s' or '%s', got '%s'", proto_models.Operation_DEPOSIT, proto_models.Operation_WITHDRAW, op.OperationType)
+	case proto_models.Operation_WITHDRAW:
+		amount = -op.Amount
+	case proto_models.Operation_DEPOSIT:
+		amount = op.Amount
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "operationType parameter must be '%s' or '%s', got '%s'", proto_models.Operation_DEPOSIT, proto_models.Operation_WITHDRAW, op.OperationType)
 	}
 
 	operation := &models.WalletOperation{
-		WalletID: uuid,
+		WalletID:     uuid,
 		AmountChange: amount,
 	}
-	
+
 	wallet, err := api.walletService.ApplyOperation(ctx, operation)
 	if err != nil {
 		if errors.Is(err, &custom_errors.ErrInsufficientBalance{}) {
