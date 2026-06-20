@@ -34,6 +34,9 @@ WalletService/
 └── .github/workflows/     # Автозапуск тестов
 ```
 
+## Граф зависимостей
+![Граф зависимостей](./docs/goda_types.svg)
+
 ## База данных
 
 ### Концепция
@@ -181,4 +184,10 @@ make gen-moks
 
 ```bash
 make gen-api
+```
+
+### Генерация графа зависимостей
+
+```bash
+make goda-graph
 ```

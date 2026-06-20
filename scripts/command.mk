@@ -5,4 +5,5 @@ gen-moks:
 	powershell -ExecutionPolicy Bypass -File ./scripts/gen-moks.ps1
 run-tests:
 	powershell -ExecutionPolicy Bypass -File ./scripts/run-tests.ps1
-
+goda-graph:
+	powershell -ExecutionPolicy Bypass -File ./scripts/goda-graph.ps1

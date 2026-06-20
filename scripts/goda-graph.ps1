@@ -1,0 +1,1 @@
+goda graph  ./... | dot -Tsvg -Gbgcolor="#1e1e1e" -Grankdir=LR -Nshape=box -Nstyle=filled -Nfillcolor="#2d2d2d" -Ncolor="#555555" -Nfontcolor="#e0e0e0" -Nfontname="Arial" -Ecolor="#666666" -o ./docs/goda_types.svg
